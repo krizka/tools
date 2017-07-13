@@ -20,7 +20,13 @@ export class FiberQueue {
                 continue;
             }
 
-            let result = this._cb(item.msg);
+            let result;
+            try {
+                result = this._cb(item.msg);
+            } catch (e) {
+                result = e;
+            }
+
             if (item.fiber)
                 item.fiber.run(result);
         }
@@ -37,8 +43,12 @@ export class FiberQueue {
             this._fiber.run();
         }
 
-        if (block)
-            return Fiber.yield();
+        if (block) {
+            const result = Fiber.yield();
+            if (result instanceof Error)
+                throw result;
+            return result;
+        }
     }
 }
 
@@ -49,6 +59,14 @@ export function fiberInterval(callback, delay) {
     }).run();
     return func;
 }
+
+Fiber.wait = function (delay) {
+    const cur = Fiber.current;
+    Meteor.setTimeout(function () {
+        cur.run();
+    }, delay);
+    Fiber.yield();
+};
 
 export function inFiber(cb) {
     return new Fiber(cb).run();
