@@ -32,14 +32,23 @@ function convertType(type) {
     }
 }
 
+function collectChildren(type) {
+    let ret = [...type.children];
+    type.children.forEach(c => {
+        ret = ret.concat(collectChildren(c));
+    });
+    return ret;
+}
+
 function convertUnion(field) {
     const fieldType = field.type;
-    const [types, options] = zip(...fieldType.children.map(type => convertField({ type })));
+    const children = collectChildren(fieldType);
+    const [types, options] = zip(...children.map(type => convertField({ type })));
 
     const union = t.union(types);
     union.getTcombFormOptions = fieldType.getFormOptions;
     union.dispatch = function(data) {
-        const index = data ? fieldType.children.findIndex(t => t.className === data.type) : -1;
+        const index = data ? children.findIndex(t => t.className === data.type) : -1;
         return types[~index ? index : 0];
     };
     return [union, options];//{ item: options }];
@@ -48,7 +57,7 @@ function convertUnion(field) {
 function convertField(field, fields) {
     const fieldType = field.type;
     if (fieldType.prototype instanceof Class) {
-        if (fieldType.children.length) {
+        if (fieldType.children.length > 1) {
             return convertUnion(field);
         }
 
