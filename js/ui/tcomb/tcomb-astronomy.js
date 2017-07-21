@@ -32,17 +32,9 @@ function convertType(type) {
     }
 }
 
-function collectChildren(type) {
-    let ret = [...type.children];
-    type.children.forEach(c => {
-        ret = ret.concat(collectChildren(c));
-    });
-    return ret;
-}
-
 function convertUnion(field) {
     const fieldType = field.type;
-    const children = collectChildren(fieldType);
+    const children = fieldType.getChildren(true);
     const [types, options] = zip(...children.map(type => convertField({ type })));
 
     const union = t.union(types);
@@ -57,7 +49,7 @@ function convertUnion(field) {
 function convertField(field, fields) {
     const fieldType = field.type;
     if (fieldType.prototype instanceof Class) {
-        if (fieldType.children.length > 1) {
+        if (fieldType.hasOwnProperty('hierarchyRoot') && fieldType.hierarchyRoot) {
             return convertUnion(field);
         }
 
