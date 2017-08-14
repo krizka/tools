@@ -2,6 +2,8 @@
  * Created by kriz on 02/06/2017.
  */
 
+import moment from 'moment';
+
 export function diffDate(date, y, m, d, h, M, s) {
     const res = new Date(date);
     if (y || m || d)
@@ -18,4 +20,12 @@ export function diffDate(date, y, m, d, h, M, s) {
         );
 
     return res;
+}
+
+export function formatDatetime(date) {
+    return moment(date).format('DD.MM.YYYY HH:mm')
+}
+
+export function formatDate(date) {
+    return moment(date).format('DD.MM.YYYY');
 }
