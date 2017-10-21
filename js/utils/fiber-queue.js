@@ -33,6 +33,9 @@ export class FiberQueue {
     }
 
     push(msg, block = false) {
+        // XXX add to queue start
+        // const block = !!(typeof opts === 'object' ? opts.block : opts);
+
         if (block) {
             this._queue.push({ fiber: Fiber.current, msg });
         } else {
