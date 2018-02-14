@@ -28,7 +28,7 @@ export const TreeView = React.createClass({
             nodeLabel,
             children,
             defaultCollapsed,
-            ...rest,
+            ...rest
         } = this.props;
 
         let arrowClassName = 'tree-view_arrow';
